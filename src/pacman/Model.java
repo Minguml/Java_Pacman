@@ -2,14 +2,17 @@ package pacman;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.dnd.DropTargetAdapter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Model extends JPanel implements ActionListener {
     private Dimension d;
     private final Font smallFont = new Font("Arial", Font.BOLD,14);
-    private final boolean inGame = false;
-    private final boolean dying = false;
+    private boolean inGame = false;
+    private boolean dying = false;
     private final int BLOCK_SIZE = 24;
     private final int N_BLOCKS = 15;
     private final int SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
@@ -48,6 +51,70 @@ public class Model extends JPanel implements ActionListener {
             17, 16, 16, 20, 0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 20,
             25, 24, 24, 24, 26, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28
     };
+
+    public Model(){
+        loadImages();
+        initVariables();
+        addKeyListener(new TAdapter());
+        setFocusable(true);
+        initGame();
+    }
+
+    private void loadImages()
+    {
+        down =  new ImageIcon("")
+        up =  new ImageIcon("")
+        left =  new ImageIcon("")
+        right =  new ImageIcon("")
+        ghost =  new ImageIcon("")
+        heart =  new ImageIcon("")
+    }
+
+    private void initVariables(){
+        screenData = new short[N_BLOCKS*N_BLOCKS];
+        d = new Dimension(400,400);
+        ghost_x = new int [MAX_GHOSTS];
+        ghost_dx new int [MAX_GHOSTS];
+        ghost_y = new int [MAX_GHOSTS];
+        ghost_dy = new int [MAX_GHOSTS];
+        ghostSpeed = new int [MAX_GHOSTS];
+        dx = new int[4];
+        dy = new int[4];
+
+        timer = new Timer(100,this);
+        timer.restart();
+    }
+
+    class TAdapter extends KeyAdapter{
+        @Override
+        public void keyPressed(KeyEvent e) {
+
+            int key = e.getKeyCode();
+
+            if (inGame) {
+                if (key == KeyEvent.VK_LEFT) {
+                    req_dx = -1;
+                    req_dy = 0;
+                } else if (key == KeyEvent.VK_RIGHT) {
+                    req_dx = 1;
+                    req_dy = 0;
+                } else if (key == KeyEvent.VK_UP) {
+                    req_dx = 0;
+                    req_dy = -1;
+                } else if (key == KeyEvent.VK_DOWN) {
+                    req_dx = 0;
+                    req_dy = 1;
+                } else if (key == KeyEvent.VK_ESCAPE && timer.isRunning()) {
+                    inGame = false;
+                }
+            } else {
+                if (key == KeyEvent.VK_SPACE) {
+                    inGame = true;
+                    initGame();
+                }
+            }
+        }
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
