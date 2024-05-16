@@ -62,12 +62,12 @@ public class Model extends JPanel implements ActionListener {
 
     private void loadImages()
     {
-        down =  new ImageIcon("")
-        up =  new ImageIcon("")
-        left =  new ImageIcon("")
-        right =  new ImageIcon("")
-        ghost =  new ImageIcon("")
-        heart =  new ImageIcon("")
+        down =  new ImageIcon("");
+        up =  new ImageIcon("");
+        left =  new ImageIcon("");
+        right =  new ImageIcon("");
+        ghost =  new ImageIcon("");
+        heart =  new ImageIcon("");
     }
 
     private void initVariables(){
@@ -83,6 +83,69 @@ public class Model extends JPanel implements ActionListener {
 
         timer = new Timer(100,this);
         timer.restart();
+    }
+
+    private void initGame(){
+        lives = 3;
+        score = 0;
+        initLevel();
+        N_GHOSTS=6;
+        currentSpeed = 3;
+    }
+    private void initLevel(){
+        int i;
+        for (i=0;i<N_BLOCKS*N_BLOCKS;i++){
+            screenData[i] = levelData[i];
+        }
+    }
+
+    private void playGame(Graphics2D g2d){
+
+    }
+
+    private void continueLevel(){
+        int dy = 1;
+        int random;
+        for (int i = 0; i < N_GHOSTS;i++)
+        {
+            ghost_y[i]=4*BLOCK_SIZE;
+            ghost_x[i]=4*BLOCK_SIZE;
+            ghost_dy[i]=0;
+            ghost_dx[i]=dx;
+            dx=-dx;
+            random = (int) (Math.random() * (currentSpeed+1));
+
+            if (random > currentSpeed)
+            {
+                random = currentSpeed;
+            }
+            ghostSpeed[i] = validSpeeds[random];
+
+        }
+        pacman_x = 7 * BLOCK_SIZE;
+        pacman_y = 11 * BLOCK_SIZE;
+        pacmand_x = 0;
+        pacmand_y=0;
+        req_dx = 0;
+        req_dy = 0;
+        dying = false;
+    }
+
+    public void paintComponent(Graphics g){
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setColor(Color.black);
+        g2d.fillRect(0,0,d.width,d.height);
+        drawMaze(g2d);
+        drawScore(g2d);
+        if (inGame) {
+
+            playGame(g2d);
+
+        }
+        else
+            showIntroScreen(g2d);
+        Toolkit.getDefaultToolkit().sync();
     }
 
     class TAdapter extends KeyAdapter{
