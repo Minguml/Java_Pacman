@@ -18,7 +18,7 @@ public class Model extends JPanel implements ActionListener {
     private final int SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE;
     private final int MAX_GHOSTS = 6;
     private final int PACMAN_SPEED = 6;
-    private final int N_GHOSTS = 3;
+    private int N_GHOSTS = 3;
     private int lives, score;
     private int[] dx,dy;
     private int[] ghost_x, ghost_y, ghost_dx, ghost_dy, ghostSpeed;
@@ -30,7 +30,7 @@ public class Model extends JPanel implements ActionListener {
 
     private final int[] validSpeeds = {1,2,3,4,6,8};
     private final int maxSpeed = 6;
-    private final int currentSpeed = 3;
+    private int currentSpeed = 3;
     private short [] screenData;
     private Timer timer;
 
@@ -62,19 +62,19 @@ public class Model extends JPanel implements ActionListener {
 
     private void loadImages()
     {
-        down =  new ImageIcon("");
-        up =  new ImageIcon("");
-        left =  new ImageIcon("");
-        right =  new ImageIcon("");
-        ghost =  new ImageIcon("");
-        heart =  new ImageIcon("");
+        down =  new ImageIcon("src/Images/down.gif").getImage();
+        up =  new ImageIcon("src/Images/up.gif").getImage();
+        left =  new ImageIcon("src/Images/left.gif").getImage();
+        right =  new ImageIcon("src/Images/right.gif").getImage();
+        ghost =  new ImageIcon("src/Images/ghost.gif").getImage();
+        heart =  new ImageIcon("src/Images/heart.png").getImage();
     }
 
     private void initVariables(){
         screenData = new short[N_BLOCKS*N_BLOCKS];
         d = new Dimension(400,400);
         ghost_x = new int [MAX_GHOSTS];
-        ghost_dx new int [MAX_GHOSTS];
+        ghost_dx = new int [MAX_GHOSTS];
         ghost_y = new int [MAX_GHOSTS];
         ghost_dy = new int [MAX_GHOSTS];
         ghostSpeed = new int [MAX_GHOSTS];
@@ -100,8 +100,53 @@ public class Model extends JPanel implements ActionListener {
     }
 
     private void playGame(Graphics2D g2d){
-
+        if (dying){
+            death();
+        }else{
+            movePacman();
+            drawPacman(g2d);
+            moveGhots(g2d);
+            checkMaze();
+        }
     }
+
+    private void movePacman() {
+
+        int pos;
+        short ch;
+
+        if (pacman_x % BLOCK_SIZE == 0 && pacman_y % BLOCK_SIZE == 0) {
+            pos = pacman_x / BLOCK_SIZE + N_BLOCKS * (int) (pacman_y / BLOCK_SIZE);
+            ch = screenData[pos];
+
+            if ((ch & 16) != 0) {
+                screenData[pos] = (short) (ch & 15);
+                score++;
+            }
+
+            if (req_dx != 0 || req_dy != 0) {
+                if (!((req_dx == -1 && req_dy == 0 && (ch & 1) != 0)
+                        || (req_dx == 1 && req_dy == 0 && (ch & 4) != 0)
+                        || (req_dx == 0 && req_dy == -1 && (ch & 2) != 0)
+                        || (req_dx == 0 && req_dy == 1 && (ch & 8) != 0))) {
+                    pacmand_x = req_dx;
+                    pacmand_y = req_dy;
+                }
+            }
+
+            // Check for standstill
+            if ((pacmand_x == -1 && pacmand_y == 0 && (ch & 1) != 0)
+                    || (pacmand_x == 1 && pacmand_y == 0 && (ch & 4) != 0)
+                    || (pacmand_x == 0 && pacmand_y == -1 && (ch & 2) != 0)
+                    || (pacmand_x == 0 && pacmand_y == 1 && (ch & 8) != 0)) {
+                pacmand_x = 0;
+                pacmand_y = 0;
+            }
+        }
+        pacman_x = pacman_x + PACMAN_SPEED * pacmand_x;
+        pacman_y = pacman_y + PACMAN_SPEED * pacmand_y;
+    }
+
 
     private void continueLevel(){
         int dy = 1;
